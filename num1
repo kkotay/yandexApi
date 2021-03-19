@@ -1,0 +1,31 @@
+import pygame
+import requests
+from PIL import Image
+import os
+
+
+apikey = "40d1649f-0493-4b70-98ba-98533de7710b"
+ll = '37.530887,55.703118'
+spn = '0.002,0.002'
+li = 'map'
+api_serv = "https://static-maps.yandex.ru/1.x/"
+search_params = {
+    'apikey': apikey,
+    'll': ll,
+    'spn': spn,
+    'l': li
+}
+response = requests.get(api_serv, params=search_params)
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
+map_file1 = Image.open('map.png')
+pygame.init()
+pygame.display.set_caption('Maps API')
+screen = pygame.display.set_mode((map_file1.size))
+screen.blit(pygame.image.load(map_file), (0, 0))
+pygame.display.flip()
+while pygame.event.wait().type != pygame.QUIT:
+    pass
+pygame.quit()
+os.remove(map_file)
