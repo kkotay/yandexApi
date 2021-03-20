@@ -1,0 +1,67 @@
+import pygame
+import requests
+from PIL import Image
+import os
+import sys
+
+r = 17
+
+
+def prow(p):
+    if p < 1:
+        return 1
+    elif p > 17:
+        return 17
+    else:
+        return p
+
+
+def otris(ll='37.530887,55.703118', apikey="40d1649f-0493-4b78ba-98533de7710b", li='map', z='17'):
+    api_serv = "https://static-maps.yandex.ru/1.x/"
+    search_params = {
+        'apikey': apikey,
+        'll': ll,
+        'z': z,
+        'l': li
+    }
+    respons = requests.get(api_serv, params=search_params)
+    return respons
+
+
+response = otris()
+
+
+def otriss(respons):
+    map_file = "map.png"
+    with open(map_file, "wb") as file:
+        file.write(respons.content)
+    return map_file
+
+
+map_file1 = Image.open('map.png')
+pygame.init()
+pygame.display.set_caption('Maps API')
+screen = pygame.display.set_mode(map_file1.size)
+screen.blit(pygame.image.load(otriss(response)), (0, 0))
+pygame.display.flip()
+
+
+done = True
+while done:
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            done = False
+            sys.exit()
+        elif e.type == pygame.KEYDOWN and e.key == pygame.K_PAGEDOWN:
+            r = int(r) - 1
+            r = str(prow(r))
+            response = otris(z=r)
+            screen.blit(pygame.image.load(otriss(response)), (0, 0))
+            pygame.display.flip()
+        elif e.type == pygame.KEYDOWN and e.key == pygame.K_PAGEUP:
+            r = int(r) + 1
+            r = str(prow(r))
+            response = otris(z=r)
+            screen.blit(pygame.image.load(otriss(response)), (0, 0))
+            pygame.display.flip()
+pygame.quit()
